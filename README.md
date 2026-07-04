@@ -35,7 +35,7 @@ This project leverages a modern, decoupled microservice architecture consisting 
 ![System Architecture](./hardware%20diagram/systemdiagram.png)
 
 ### Hardware Schematic
-![Hardware Schematic](./hardware%20diagram/hardwareschematic.png) *(Note: Replace with your final schematic)*
+![Hardware Schematic](./hardware%20diagram/hardwareschematic.png)
 
 ## 🚀 Setup & Installation
 

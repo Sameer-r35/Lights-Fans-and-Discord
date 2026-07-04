@@ -17,20 +17,35 @@ const groq = new Groq({
 
 const BACKEND_URL = 'http://localhost:5000';
 
+function preprocessData(data) {
+  const clone = JSON.parse(JSON.stringify(data));
+  if (clone.devices && Array.isArray(clone.devices)) {
+    clone.devices.forEach(d => {
+      if (d.turnedOnAt) {
+        d.turnedOnAt = new Date(d.turnedOnAt).toLocaleString();
+      }
+      if (d.lastUpdated) {
+        d.lastUpdated = new Date(d.lastUpdated).toLocaleString();
+      }
+    });
+  }
+  return clone;
+}
+
 async function generateResponse(jsonData) {
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "You are a friendly office assistant. Convert this JSON device state into a natural, conversational, and brief response for the boss."
+          content: "You are a friendly office assistant. Convert this JSON device state into a natural, conversational, and brief response for the boss. Never use placeholders like [insert date], use the actual provided human-readable timestamps."
         },
         {
           role: "user",
           content: JSON.stringify(jsonData, null, 2)
         }
       ],
-      model: "llama3-8b-8192",
+      model: "llama-3.1-8b-instant",
       temperature: 0.7,
       max_tokens: 256,
     });
@@ -42,7 +57,7 @@ async function generateResponse(jsonData) {
   }
 }
 
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log(`Discord bot logged in as ${client.user.tag}`);
 });
 
@@ -58,7 +73,7 @@ client.on('messageCreate', async (message) => {
       message.channel.sendTyping();
       const response = await axios.get(`${BACKEND_URL}/api/status`);
       
-      const replyMessage = await generateResponse(response.data);
+      const replyMessage = await generateResponse(preprocessData(response.data));
       message.reply(replyMessage);
     } 
     else if (command === '!room') {
@@ -89,7 +104,7 @@ client.on('messageCreate', async (message) => {
         totalRoomWattage: roomWattage
       };
       
-      const replyMessage = await generateResponse(filteredData);
+      const replyMessage = await generateResponse(preprocessData(filteredData));
       message.reply(replyMessage);
     }
     else if (command === '!usage') {
@@ -97,7 +112,7 @@ client.on('messageCreate', async (message) => {
       const response = await axios.get(`${BACKEND_URL}/api/status`);
       
       // current total wattage is provided by the API in Watts.
-      const currentWattage = response.data.totalWattage;
+      const currentWattage = response.data.metrics.totalPower;
       
       // Calculate estimated daily kWh (assuming the current wattage is maintained for 24h)
       // kWh = (Watts / 1000) * 24
