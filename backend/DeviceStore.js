@@ -18,6 +18,7 @@ class DeviceStore {
           room: room,
           status: 'OFF',
           wattage: 60,
+          turnedOnAt: null,
           lastUpdated: Date.now()
         });
       }
@@ -30,6 +31,7 @@ class DeviceStore {
           room: room,
           status: 'OFF',
           wattage: 15,
+          turnedOnAt: null,
           lastUpdated: Date.now()
         });
       }
@@ -40,10 +42,24 @@ class DeviceStore {
     return this.devices;
   }
 
-  getTotalWattage() {
-    return this.devices
-      .filter(device => device.status === 'ON')
-      .reduce((total, device) => total + device.wattage, 0);
+  getMetrics() {
+    let totalPower = 0;
+    const roomPower = {
+      "Drawing Room": 0,
+      "Work Room 1": 0,
+      "Work Room 2": 0
+    };
+
+    this.devices.forEach(device => {
+      if (device.status === 'ON') {
+        totalPower += device.wattage;
+        if (roomPower[device.room] !== undefined) {
+          roomPower[device.room] += device.wattage;
+        }
+      }
+    });
+
+    return { totalPower, roomPower };
   }
 
   toggleRandomDevices() {
@@ -56,6 +72,7 @@ class DeviceStore {
       
       // Toggle status
       device.status = device.status === 'ON' ? 'OFF' : 'ON';
+      device.turnedOnAt = device.status === 'ON' ? Date.now() : null;
       device.lastUpdated = Date.now();
       
       toggledDevices.push(device);
