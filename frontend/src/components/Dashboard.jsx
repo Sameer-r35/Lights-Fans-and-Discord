@@ -77,8 +77,8 @@ export default function Dashboard() {
       {/* Sidebar (left) - locked to screen height and no internal scrolling on the entire aside */}
       <aside className="w-80 bg-white border-r border-slate-200 p-6 flex flex-col shadow-sm z-20 h-full">
         <div className="flex items-center gap-3 mb-10 mt-2 shrink-0">
-          <Activity className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Smart Office</h1>
+          <Zap className="w-8 h-8 text-yellow-500 fill-yellow-500" />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Lights, Fans and Discord!</h1>
         </div>
         
         <Card className="mb-6 border-slate-200 shadow-sm bg-slate-50/50 shrink-0">
